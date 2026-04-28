@@ -1,9 +1,6 @@
-from pathlib import Path
-
-code = r'''import streamlit as st
+import streamlit as st
 import pandas as pd
 import plotly.express as px
-import plotly.graph_objects as go
 
 st.set_page_config(
     page_title="Retail Flex Monetization Cockpit",
@@ -89,7 +86,6 @@ st.markdown("""
 # Data model
 # ----------------------------
 fit_score = {"n/a": 0, "Low": 1, "Med": 2, "High": 3, "Very high": 4}
-fit_label = {v: k for k, v in fit_score.items()}
 
 assets = {
     "EV": {
@@ -102,14 +98,14 @@ assets = {
         "strengths": [
             "Volume flexibility when plugged in",
             "Strong fit for dynamic charging and §14a",
-            "Can become much more valuable with V2G"
+            "Can become much more valuable with V2G",
         ],
         "limits": [
             "Plug-in uncertainty",
             "Without V2G, mainly downward / load-shifting flexibility",
-            "Balancing fit weaker than batteries"
+            "Balancing fit weaker than batteries",
         ],
-        "tagline": "Volume play"
+        "tagline": "Volume play",
     },
     "PV": {
         "icon": "☀️",
@@ -121,14 +117,14 @@ assets = {
         "strengths": [
             "Creates self-consumption value surface",
             "Enables batteries and flexible loads to create value",
-            "Strong customer bill story"
+            "Strong customer bill story",
         ],
         "limits": [
             "Not flexible by itself in the same way as storage/load",
             "Curtailment rarely the main monetization route",
-            "Value depends on pairing with storage or shiftable load"
+            "Value depends on pairing with storage or shiftable load",
         ],
-        "tagline": "Enabler"
+        "tagline": "Enabler",
     },
     "Home battery": {
         "icon": "🔋",
@@ -140,14 +136,14 @@ assets = {
         "strengths": [
             "Broadest asset-to-market fit",
             "Strong for bill optimization and wholesale timing",
-            "Best retail-fit asset for advanced monetization"
+            "Best retail-fit asset for advanced monetization",
         ],
         "limits": [
             "Cycle-limited / warranty constrained",
             "Capex sensitive",
-            "Value depends on spreads and utilization"
+            "Value depends on spreads and utilization",
         ],
-        "tagline": "Swiss army knife"
+        "tagline": "Swiss army knife",
     },
     "Heat pump": {
         "icon": "🌡️",
@@ -159,14 +155,14 @@ assets = {
         "strengths": [
             "Excellent for §14a and tariff-led shifting",
             "Predictable flexible demand",
-            "Good supplier portfolio value"
+            "Good supplier portfolio value",
         ],
         "limits": [
             "Bound by comfort and thermal inertia",
             "Weak fit for very fast markets",
-            "Customer acceptance matters"
+            "Customer acceptance matters",
         ],
-        "tagline": "Predictable shifter"
+        "tagline": "Predictable shifter",
     },
     "EV + PV": {
         "icon": "🚗☀️",
@@ -178,14 +174,14 @@ assets = {
         "strengths": [
             "Good dynamic charging + self-consumption bundle",
             "Strong customer proposition",
-            "Can reduce import and improve tariff timing"
+            "Can reduce import and improve tariff timing",
         ],
         "limits": [
             "No storage buffer without battery",
             "Still constrained by plug-in timing",
-            "Limited fit for advanced ancillary monetization"
+            "Limited fit for advanced ancillary monetization",
         ],
-        "tagline": "Smart charging bundle"
+        "tagline": "Smart charging bundle",
     },
     "PV + battery": {
         "icon": "☀️🔋",
@@ -197,14 +193,14 @@ assets = {
         "strengths": [
             "Most bankable household bundle today",
             "Excellent bill optimization fit",
-            "Strong DA / supplier-side optimization potential"
+            "Strong DA / supplier-side optimization potential",
         ],
         "limits": [
             "Still spread- and capex-sensitive",
             "Battery can saturate if undersized",
-            "Ancillary routes require operational maturity"
+            "Ancillary routes require operational maturity",
         ],
-        "tagline": "Highest value density"
+        "tagline": "Highest value density",
     },
     "EV + battery": {
         "icon": "🚗🔋",
@@ -216,14 +212,14 @@ assets = {
         "strengths": [
             "Good for bill optimization and DA timing",
             "Battery improves bankability vs EV alone",
-            "Strong supplier / BRP value"
+            "Strong supplier / BRP value",
         ],
         "limits": [
             "Still weaker than PV+battery on self-consumption story",
             "Operationally more complex",
-            "V2G still not assumed"
+            "V2G still not assumed",
         ],
-        "tagline": "Flex-rich bundle"
+        "tagline": "Flex-rich bundle",
     },
     "EV + PV + battery": {
         "icon": "🚗☀️🔋",
@@ -235,15 +231,15 @@ assets = {
         "strengths": [
             "Best total household flexibility proposition",
             "Supports stacked customer, supplier, and system value",
-            "Strongest long-term strategic bundle"
+            "Strongest long-term strategic bundle",
         ],
         "limits": [
             "Highest orchestration complexity",
             "Requires good controls and proposition design",
-            "Not every value stream is accessible on day one"
+            "Not every value stream is accessible on day one",
         ],
-        "tagline": "Full-stack power home"
-    }
+        "tagline": "Full-stack power home",
+    },
 }
 
 channels = {
@@ -254,7 +250,7 @@ channels = {
         "value": 5,
         "maturity": "Easy and real today",
         "constraints": ["Tariff structure", "Customer behavior", "Device control"],
-        "takeaway": "Most accessible residential value pool."
+        "takeaway": "Most accessible residential value pool.",
     },
     "Day-ahead optimization": {
         "desc": "Use day-ahead price spreads to shift charging, discharge, or flexible load timing.",
@@ -263,7 +259,7 @@ channels = {
         "value": 4,
         "maturity": "Real today",
         "constraints": ["Forecasting", "BRP integration", "Portfolio scale"],
-        "takeaway": "Bankable, especially for batteries."
+        "takeaway": "Bankable, especially for batteries.",
     },
     "Intraday optimization": {
         "desc": "Capture short-term price volatility and forecast-error value in 15-min or continuous markets.",
@@ -272,7 +268,7 @@ channels = {
         "value": 4,
         "maturity": "Real but operationally harder",
         "constraints": ["Fast telemetry", "Control quality", "Operational sophistication"],
-        "takeaway": "Best fit for batteries, weak fit for simpler retail assets."
+        "takeaway": "Best fit for batteries, weak fit for simpler retail assets.",
     },
     "§14a / variable grid fee": {
         "desc": "Shift load away from expensive grid windows or monetize regulated grid-fee incentives for controllable assets.",
@@ -281,7 +277,7 @@ channels = {
         "value": 4,
         "maturity": "Easy and real today",
         "constraints": ["Eligibility", "DSO implementation", "Customer opt-in"],
-        "takeaway": "Near-term regulatory tailwind."
+        "takeaway": "Near-term regulatory tailwind.",
     },
     "Balancing / ancillary": {
         "desc": "Provide aFRR/FCR-style reserve capacity and activation, usually via aggregation.",
@@ -290,7 +286,7 @@ channels = {
         "value": 4,
         "maturity": "Selective and harder today",
         "constraints": ["Prequalification", "Telemetry", "Pool size", "Reliability risk"],
-        "takeaway": "Real money, but not a broad first-wave retail proposition."
+        "takeaway": "Real money, but not a broad first-wave retail proposition.",
     },
     "Portfolio / BRP value": {
         "desc": "Reduce procurement cost, imbalance exposure, and portfolio risk using controllable asset fleets.",
@@ -299,7 +295,7 @@ channels = {
         "value": 5,
         "maturity": "Real today but often under-attributed",
         "constraints": ["Integrated trading + flex stack", "Internal attribution logic"],
-        "takeaway": "Often one of the most underrated value pools."
+        "takeaway": "Often one of the most underrated value pools.",
     },
     "Local / DSO flexibility": {
         "desc": "Offer congestion or local grid support value in specific places and pilots.",
@@ -308,8 +304,8 @@ channels = {
         "value": 2,
         "maturity": "Emerging / selective",
         "constraints": ["Location specificity", "Immature market depth", "Pilot dependence"],
-        "takeaway": "Watch closely, but do not build the core case on it."
-    }
+        "takeaway": "Watch closely, but do not build the core case on it.",
+    },
 }
 
 fit_matrix = {
@@ -517,7 +513,7 @@ def make_channel_priority_df():
             "Ease of monetization": c["difficulty"],
             "Value potential": c["value"],
             "Maturity": c["maturity"],
-            "Bubble size": 25 + c["value"] * 12
+            "Bubble size": 25 + c["value"] * 12,
         })
     return pd.DataFrame(rows)
 
@@ -542,7 +538,7 @@ selected_asset = st.sidebar.selectbox("Asset explorer", list(assets.keys()), ind
 selected_channel = st.sidebar.selectbox("Channel explorer", list(channels.keys()), index=0)
 
 st.sidebar.markdown("---")
-st.sidebar.caption("Use this app as a guided internal strategy cockpit. Start on the Overview page, then move to Fit Matrix and Value Stack.")
+st.sidebar.caption("Use this app as a guided internal strategy cockpit. Start on the Overview page, then move to Hero Matrix and Value Stack Simulator.")
 
 # ----------------------------
 # Header
@@ -563,7 +559,10 @@ with b3:
 with b4:
     st.markdown('<span class="badge">Balancing = selective, harder</span>', unsafe_allow_html=True)
 
-st.markdown('<div class="takeaway"><b>Core message:</b> Retail flexibility becomes bankable when multiple value pools are layered on the same hardware. Lead with bill optimization + §14a + portfolio/wholesale value, then add balancing selectively where control and scale justify it.</div>', unsafe_allow_html=True)
+st.markdown(
+    '<div class="takeaway"><b>Core message:</b> Retail flexibility becomes bankable when multiple value pools are layered on the same hardware. Lead with bill optimization + §14a + portfolio/wholesale value, then add balancing selectively where control and scale justify it.</div>',
+    unsafe_allow_html=True,
+)
 
 # ----------------------------
 # Navigation
@@ -619,14 +618,14 @@ with tab1:
             paper_bgcolor="rgba(0,0,0,0)",
             plot_bgcolor="rgba(0,0,0,0)",
             font=dict(color="#E5E7EB"),
-            coloraxis_colorbar_title="Ease"
+            coloraxis_colorbar_title="Ease",
         )
         st.plotly_chart(fig, use_container_width=True)
 
     with right:
         st.subheader("Strongest household bundles")
         bundle_scores = []
-        for asset_name in ["EV", "PV", "Home battery", "Heat pump", "EV + PV", "PV + battery", "EV + battery", "EV + PV + battery"]:
+        for asset_name in list(fit_matrix.keys()):
             row = fit_matrix[asset_name]
             total = sum(fit_score[v] for v in row.values())
             bundle_scores.append({"Bundle": asset_name, "Composite fit score": total})
@@ -681,7 +680,7 @@ with tab1:
 # ----------------------------
 with tab2:
     st.subheader("Asset × monetization fit matrix")
-    st.caption("Click a cell below via the selectors to get the commercial explanation behind the score.")
+    st.caption("Use the selectors below the heatmap to inspect why a fit is strong, medium, low, or not applicable.")
 
     pivot = fit_df.pivot(index="Asset", columns="Channel", values="Score").loc[list(fit_matrix.keys()), list(channels.keys())]
 
@@ -710,7 +709,7 @@ with tab2:
     with c_col:
         channel_pick = st.selectbox("Inspect channel", list(channels.keys()), index=0, key="matrix_channel")
 
-    fit_label_selected = fit_matrix[asset_pick][channel_pick]
+    fit_selected = fit_matrix[asset_pick][channel_pick]
     asset_info = assets[asset_pick]
     channel_info = channels[channel_pick]
 
@@ -720,9 +719,9 @@ with tab2:
         <div class="section-card">
             <h4 style="margin-top:0;">{asset_info['icon']} {asset_pick}</h4>
             <div class="subtle">{asset_info['tagline']}</div><br>
-            <b>Fit to {channel_pick}:</b> {fit_label_selected}<br><br>
+            <b>Fit to {channel_pick}:</b> {fit_selected}<br><br>
             <b>Why this fit:</b><br>
-            {asset_info['type']} with {asset_info['control'].lower()} tends to make this asset {fit_label_selected.lower()} for this route.
+            {asset_info['type']} with {asset_info['control'].lower()} tends to make this asset {fit_selected.lower()} for this route.
         </div>
         """, unsafe_allow_html=True)
     with e2:
@@ -737,7 +736,10 @@ with tab2:
         </div>
         """, unsafe_allow_html=True)
 
-    st.markdown('<div class="takeaway"><b>Read this matrix like a portfolio strategy map:</b> bill optimization, §14a, and portfolio value are broadly accessible; wholesale is strongest for batteries; balancing is real but selective; local / DSO value is promising but not yet the foundation of a broad retail case.</div>', unsafe_allow_html=True)
+    st.markdown(
+        '<div class="takeaway"><b>Read this matrix like a portfolio strategy map:</b> bill optimization, §14a, and portfolio value are broadly accessible; wholesale is strongest for batteries; balancing is real but selective; local / DSO value is promising but not yet the foundation of a broad retail case.</div>',
+        unsafe_allow_html=True,
+    )
 
 # ----------------------------
 # Tab 3: Value Stack Simulator
@@ -792,10 +794,8 @@ with tab3:
         st.plotly_chart(fig, use_container_width=True)
 
     with right:
-        share_df = stack_df.copy()
-        share_df["Share %"] = 100 * share_df["Annual value (€ / year)"] / share_df["Annual value (€ / year)"].sum()
         pie = px.pie(
-            share_df,
+            stack_df,
             names="Channel",
             values="Annual value (€ / year)",
             hole=0.52,
@@ -892,8 +892,7 @@ with tab4:
         </div>
         """, unsafe_allow_html=True)
 
-    st.markdown('<div class="takeaway"><b>Commercial sequencing message:</b> start with the routes that are easiest to explain to customers and easiest to operationalize internally. Then layer supplier-side value and only later the more operationally demanding system-service routes.</div>', unsafe_allow_html=True)
-'''
-out = Path('/mnt/data/retail_flex_monetization_cockpit.py')
-out.write_text(code)
-print(f"Wrote {out}")
+    st.markdown(
+        '<div class="takeaway"><b>Commercial sequencing message:</b> start with the routes that are easiest to explain to customers and easiest to operationalize internally. Then layer supplier-side value and only later the more operationally demanding system-service routes.</div>',
+        unsafe_allow_html=True,
+    )
